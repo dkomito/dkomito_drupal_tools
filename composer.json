@@ -1,0 +1,13 @@
+{
+    "name": "dkomito_drupal_tools",
+    "type": "drupal-module",
+    "description": "Various formatters, themes, etc.",
+    "keywords": [
+    ],
+    "homepage": "https://www.drupal.org/project/dkomito_drupal_tools",
+    "minimum-stability": "dev",
+    "support": {
+        "issues": "https://www.drupal.org/project/issues/dkomito_drupal_tools",
+        "source": "http://cgit.drupalcode.org/dkomito_drupal_tools",
+    },
+}

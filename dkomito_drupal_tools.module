@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains dkomito_drupal_tools.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function dkomito_drupal_tools_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the dkomito_drupal_tools module.
+    case 'help.page.dkomito_drupal_tools':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Various formatters, themes, etc.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
