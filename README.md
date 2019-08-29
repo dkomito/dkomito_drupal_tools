@@ -4,6 +4,9 @@ Drupal 8 Tools
  Custom Date Range Formatter Extension
  
  	A Custom Date Range Formatter that properly omits an end date if start date is the same.
+  
+	  08/29 - Added date intersect logic to reduce redundant date info
+			Ex. Oct. 3 2019 - Oct. 5 2019" becomes "Oct. 3-5 2019
  
  How to install
 	

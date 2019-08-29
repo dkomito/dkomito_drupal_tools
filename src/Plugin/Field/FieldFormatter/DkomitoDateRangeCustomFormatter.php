@@ -23,6 +23,16 @@ use Drupal\datetime_range\Plugin\Field\FieldFormatter\DateRangeCustomFormatter;
  * )
  */
 class DkomitoDateRangeCustomFormatter extends DateRangeCustomFormatter {
+	
+	
+  /**
+   * {@inheritdoc}
+   */
+  public static function defaultSettings() {
+    return [
+      'intersect_dates' => FALSE,
+    ] + parent::defaultSettings();
+  }
 
   /**
    * {@inheritdoc}
@@ -53,10 +63,45 @@ class DkomitoDateRangeCustomFormatter extends DateRangeCustomFormatter {
 				}
 				
         if ($start_timestamp !== $end_timestamp) {
+					$separator = ' ' . $separator . ' ';
+					$start_str = $this->buildDate($start_date);
+					$end_str = $this->buildDate($end_date);
+					
+				//	Intersect the dates
+					if($this->getSetting('intersect_dates')){
+						$start_words = explode(' ', $start_str['#markup']);
+						$end_words = explode(' ', $end_str['#markup']);
+						foreach($start_words as $key => $value){
+							if($value != $end_words[$key]){
+								break;
+							}
+						}
+						if($key > 0){
+							$start_words = array_slice($start_words, 0, $key + 1);
+							$end_words = array_slice($end_words, $key);
+							$start_str['#markup'] = implode(' ', $start_words);
+							$end_str['#markup'] = implode(' ', $end_words);
+							$separator = trim($separator);
+						}
+					//	The start is the same, try to insect the year (only if the format ends with a year)
+						else if(strtolower(substr(trim($this->getSetting('date_format')), -1)) == 'y'){
+							for($key = count($start_words) - 1; $key >= 0; $key-- ){
+								if($start_words[$key] != $end_words[$key]){
+									break;
+								}
+							}								
+							if($key < count($start_words) - 1){
+								$start_words = array_slice($start_words, 0, $key + 1);
+								$start_str['#markup'] = implode(' ', $start_words);
+								$end_str['#markup'] = implode(' ', $end_words);
+							}
+						}
+					}
+					
           $elements[$delta] = [
-            'start_date' => $this->buildDate($start_date),
-            'separator' => ['#plain_text' => ' ' . $separator . ' '],
-            'end_date' => $this->buildDate($end_date),
+            'start_date' => $start_str,
+            'separator' => ['#plain_text' => $separator],
+            'end_date' => $end_str,
           ];
         }
         else {
@@ -67,4 +112,34 @@ class DkomitoDateRangeCustomFormatter extends DateRangeCustomFormatter {
 
     return $elements;
   }
+	
+/**
+ * {@inheritdoc}
+ */
+  public function settingsForm(array $form, FormStateInterface $form_state) {
+    $form = parent::settingsForm($form, $form_state);
+		
+		$form['intersect_dates'] = [
+			'#title' => $this->t('Intersect Start and End Dates?'),
+			'#type' => 'checkbox',
+			'#default_value' => $this->getSetting('intersect_dates'),
+			'#description' => $this->t('Where "Oct. 3 2019 - Oct. 5 2019" becomes "Oct. 3-5 2019".  Works best for language-based formats. (ie. "10/3/2019 - 10/5/2019" would be "10/3-5/2019")'),
+		];
+	
+		return $form;
+	}
+
+  /**
+   * {@inheritdoc}
+   */
+  public function settingsSummary() {
+    $summary = parent::settingsSummary();
+
+    if ($intersect_dates = $this->getSetting('intersect_dates')) {
+      $summary[] = $this->t('Instersect Dates: %intersect_dates', ['%intersect_dates' => $intersect_dates]);
+    }
+
+    return $summary;
+  }
+
 }
